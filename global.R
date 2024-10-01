@@ -26,46 +26,8 @@ is_sp_env <- sp_path != ""
 
 # Import data -------------------------------------------------------------
 
-# Get the distance matrix
-mat <- read_rds(here::here(clean_path, "distance_matrix.rds"))
-
-#all possible destinations
-dest <- read_rds(here::here(clean_path, "dest_cities.rds"))
-
-orig_cities <- dest |>
-  shinyWidgets::prepare_choices(
-    label = city_name,
-    value = city_code,
-    group_by = country_name
-  )
-
-# get the air_msf data
-msf <- read_rds(here::here(clean_path, "unique_msf_clean.rds"))
-
-# msf_type_vec <- read_rds(here::here(clean_path, "full_msf_clean.rds")) |>
-#   distinct(msf_type) |>
-#   pull(msf_type)
-
-msf_type_vec <- c(
-  "MSF HQ OC",
-  "MSF office",
-  "Field Coordination",
-  "Field Project",
-  "MSF Supply Center",
-  "Research center"
-)
-
-# get the conversion df - given by Maelle
-df_conversion <- read_rds(here::here(clean_path, "conversion_df.rds"))
-
 # Get all travel data
-df_travels <- read_rds(here::here(clean_path, "full_amex_wagram_cwt.rds"))
-
-#load the network 
-net <- read_rds(here::here(clean_path, "flights_network.rds"))
-
-#load the distance matrix for all cities
-# cities_network <- read_rds(here::here(clean_path, "cities_network.rds"))
+df_travels <- read_rds(here::here(clean_path, "flights", "full_amex_wagram_cwt.rds"))
 
 # date range
 init_year <- sort(unique(df_travels$year))
