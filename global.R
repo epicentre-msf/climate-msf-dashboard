@@ -24,6 +24,9 @@ app_title <- "MSF Carbon Travel App"
 sp_path <- Sys.getenv("SHINYPROXY_PUBLIC_PATH")
 is_sp_env <- sp_path != ""
 # mapbox api token
+if (file.exists(here::here(".Renviron"))) {
+  readRenviron(here::here(".Renviron"))
+}
 mbtkn <- Sys.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Import data -------------------------------------------------------------
