@@ -62,7 +62,7 @@ mod_travel_analysis_ui <- function(id) {
         width = 1 / 4,
         fill = FALSE,
         value_box(
-          title = "travels",
+          title = "Travels",
           theme = "primary",
           class = "vb",
           value = textOutput(ns("travel")),
@@ -93,33 +93,43 @@ mod_travel_analysis_ui <- function(id) {
       ),
       
       # MAP & DEST TABLE ========================================================
-      layout_column_wrap(
-        width = 1 / 1,
-        navset_card_tab(
-          full_screen = TRUE,
-          wrapper = \(...) {
-            bslib::card_body(..., padding = 0)
-          },
-          id = ns("geo_tabs"),
-          title = div(
-            class = "d-flex justify-content-between align-items-center",
-            tags$span(
-              class = "pe-2",
-              tagList(shiny::icon("earth-africa"), "Map of flights destinations & origins")
-            )
-          ),
-          nav_panel(
-            title = shiny::icon("map"),
-            value = "map",
-            leaflet::leafletOutput(ns("map"))
-          ),
-          nav_panel(
-            title = shiny::icon("table"),
-            value = "table",
-            reactableOutput(ns("table"))
-          )
+      card(
+        card_body(
+          padding = 0,
+          height = 500,
+          flowmapblue::flowmapblueOutput(ns("flowmap"))
         )
       ),
+
+      # layout_column_wrap(
+      #   width = 1 / 1,
+      #   navset_card_tab(
+      #     full_screen = FALSE,
+      #     wrapper = \(...) {
+      #       bslib::card_body(..., padding = 0, height = 500)
+      #     },
+      #     id = ns("geo_tabs"),
+      #     title = div(
+      #       class = "d-flex justify-content-between align-items-center",
+      #       tags$span(
+      #         class = "pe-2",
+      #         tagList(shiny::icon("earth-africa"), "Travel flows")
+      #       )
+      #     ),
+      #     nav_panel(
+      #       title = shiny::icon("map"),
+      #       value = "map",
+      #       "placeholder"
+      #       # flowmapblue::flowmapblueOutput(ns("flowmap"))
+      #       # leaflet::leafletOutput(ns("map"))
+      #     ),
+      #     nav_panel(
+      #       title = shiny::icon("table"),
+      #       value = "table",
+      #       reactableOutput(ns("table"))
+      #     )
+      #   )
+      # ),
       
       # TIME-SERIE & BOXPLOT ========================================================
       layout_column_wrap(
@@ -339,7 +349,7 @@ mod_travel_analysis_server <- function(
     
     output$travel_info <- renderUI({
       req(travel_summary())
-      paste(travel_summary()$n_flight, " Flights")
+      tags$small(paste(travel_summary()$n_flight, " Flights"))
     })
     
     output$segment <- renderText({
@@ -437,77 +447,96 @@ mod_travel_analysis_server <- function(
     })
     
     # Map  ===========================================
-    df_origin <- reactive({
-      
-      travel_ready() |>
-        filter(travel_type == "air") |> 
-        summarise(
-          .by = c(ori_city_code, ori_city_name),
-          ori_lon = unique(ori_city_lon, na.rm = TRUE),
-          ori_lat = unique(ori_city_lat, na.rm = TRUE),
-          n = n()
-        ) |>
-        tidyr::drop_na()
-    })
-    
-    df_destination <- reactive({
+    df_flowmap <- reactive({
       travel_ready() |> 
-        filter(travel_type == "air") |> 
-        summarise(
-          .by = c(dest_city_code, dest_city_name),
-          dest_lon = unique(dest_city_lon, na.rm = TRUE),
-          dest_lat = unique(dest_city_lat, na.rm = TRUE),
-          n = n()
-        ) |>
-        tidyr::drop_na()
-    })
-    
-    output$map <- leaflet::renderLeaflet({
-      
-      
-      validate(need(nrow(df_origin()) > 0, "No data available"))
-      
-      leaflet::leaflet() |>
-        leaflet::setView(0, 10, zoom = 2) |>
-        leaflet::addMapPane(name = "circles", zIndex = 410) |>
-        leaflet::addMapPane(name = "place_labels", zIndex = 450) |>
-        leaflet::addProviderTiles("CartoDB.Positron", group = "Light") |>
-        # leaflet::addProviderTiles("OpenStreetMap", group = "OSM") |>
-        leaflet::addScaleBar(position = "bottomright", options = leaflet::scaleBarOptions(imperial = FALSE)) |>
-        leaflet.extras::addFullscreenControl(position = "topleft") |>
-        leaflet.extras::addResetMapButton() |>
-        leaflet::addLayersControl(
-          baseGroups = c("Origin", "Destination"),
-          position = "topright",
-          options = layersControlOptions(collapsed = FALSE)
-        ) |>
-        leaflet::addCircleMarkers(
-          data = df_origin(),
-          lng = ~ori_lon,
-          lat = ~ori_lat,
-          radius = ~ calc_radius(n),
-          fillColor = "steelblue",
-          fillOpacity = 0.8,
-          weight = 1,
-          color = "#FFFFFF",
-          label = ~ paste(ori_city_name, n, "flights"),
-          group = "Origin",
-          options = leaflet::pathOptions(pane = "circles")
-        ) |>
-        leaflet::addCircleMarkers(
-          data = df_destination(),
-          lng = ~dest_lon,
-          lat = ~dest_lat,
-          radius = ~ calc_radius(n),
-          fillColor = "red",
-          fillOpacity = 0.8,
-          weight = 1,
-          color = "#FFFFFF",
-          label = ~ paste(dest_city_name, n, "flights"),
-          group = "Destination",
-          options = leaflet::pathOptions(pane = "circles")
+        # filter(travel_type == "air") |> 
+        count(
+          origin = ori_city_code,
+          dest = dest_city_code,
+          name = "count"
         )
     })
+
+    output$flowmap <- flowmapblue::renderFlowmapblue({
+      flowmapblue::flowmapblue(
+        locations = locations,
+        flows = df_flowmap(),
+        mapboxAccessToken = mbtkn,
+        clustering = TRUE,
+        darkMode = FALSE,
+        animation = FALSE
+      )
+    })
+
+    # df_origin <- reactive({
+    #   travel_ready() |>
+    #     filter(travel_type == "air") |> 
+    #     summarise(
+    #       .by = c(ori_city_code, ori_city_name),
+    #       ori_lon = unique(ori_city_lon, na.rm = TRUE),
+    #       ori_lat = unique(ori_city_lat, na.rm = TRUE),
+    #       n = n()
+    #     ) |>
+    #     tidyr::drop_na()
+    # })
+    
+    # df_destination <- reactive({
+    #   travel_ready() |> 
+    #     filter(travel_type == "air") |> 
+    #     summarise(
+    #       .by = c(dest_city_code, dest_city_name),
+    #       dest_lon = unique(dest_city_lon, na.rm = TRUE),
+    #       dest_lat = unique(dest_city_lat, na.rm = TRUE),
+    #       n = n()
+    #     ) |>
+    #     tidyr::drop_na()
+    # })
+    
+    # output$map <- leaflet::renderLeaflet({
+      
+    #   validate(need(nrow(df_origin()) > 0, "No data available"))
+      
+    #   leaflet::leaflet() |>
+    #     leaflet::setView(0, 10, zoom = 2) |>
+    #     leaflet::addMapPane(name = "circles", zIndex = 410) |>
+    #     leaflet::addMapPane(name = "place_labels", zIndex = 450) |>
+    #     leaflet::addProviderTiles("CartoDB.Positron", group = "Light") |>
+    #     # leaflet::addProviderTiles("OpenStreetMap", group = "OSM") |>
+    #     leaflet::addScaleBar(position = "bottomright", options = leaflet::scaleBarOptions(imperial = FALSE)) |>
+    #     leaflet.extras::addFullscreenControl(position = "topleft") |>
+    #     leaflet.extras::addResetMapButton() |>
+    #     leaflet::addLayersControl(
+    #       baseGroups = c("Origin", "Destination"),
+    #       position = "topright",
+    #       options = layersControlOptions(collapsed = FALSE)
+    #     ) |>
+    #     leaflet::addCircleMarkers(
+    #       data = df_origin(),
+    #       lng = ~ori_lon,
+    #       lat = ~ori_lat,
+    #       radius = ~ calc_radius(n),
+    #       fillColor = "steelblue",
+    #       fillOpacity = 0.8,
+    #       weight = 1,
+    #       color = "#FFFFFF",
+    #       label = ~ paste(ori_city_name, n, "flights"),
+    #       group = "Origin",
+    #       options = leaflet::pathOptions(pane = "circles")
+    #     ) |>
+    #     leaflet::addCircleMarkers(
+    #       data = df_destination(),
+    #       lng = ~dest_lon,
+    #       lat = ~dest_lat,
+    #       radius = ~ calc_radius(n),
+    #       fillColor = "red",
+    #       fillOpacity = 0.8,
+    #       weight = 1,
+    #       color = "#FFFFFF",
+    #       label = ~ paste(dest_city_name, n, "flights"),
+    #       group = "Destination",
+    #       options = leaflet::pathOptions(pane = "circles")
+    #     )
+    # })
     
     # Time-Series ===========================================
     

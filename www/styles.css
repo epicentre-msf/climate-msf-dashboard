@@ -1,0 +1,30 @@
+html {
+    background-color: #f7f7f7 !important;
+}
+
+body {
+    padding-top: 50px !important;
+    background-color: #f7f7f7 !important;
+}
+
+.navbar {
+    border-bottom: 1px solid #d3d3d3;
+}
+
+.vb .card-body {
+    padding: 5px !important;
+}
+
+.value-box-area {
+    padding: 0 !important;
+}
+
+.selectize-dropdown,
+.selectize-input,
+.form-control {
+    font-size: 0.8rem !important;
+}
+
+.bigger-text {
+    font-size: 1.1rem !important;
+}

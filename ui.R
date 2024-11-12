@@ -1,13 +1,7 @@
 ui <- tagList(
   tags$head(
     tags$script(src = "js/main.js"),
-    tags$style("
-    body {background-color: #f7f7f7;}
-    .vb .card-body {padding: 5px !important;} 
-    .value-box-area {padding: 0 !important;}
-    .selectize-dropdown, .selectize-input, .form-control {font-size: 0.8rem !important;}
-    .bigger-text {font-size: 1.1rem !important;}
-    "),
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     shinyjs::useShinyjs(),
     waiter::use_waiter()
   ),
@@ -17,6 +11,9 @@ ui <- tagList(
     collapsible = TRUE,
     fillable_mobile = FALSE,
     inverse = FALSE,
+    underline = FALSE,
+    position = "fixed-top",
+    bg = "#ffffff",
     theme = bs_theme(
       font_scale = 0.8,
       bootswatch = "minty",
@@ -30,7 +27,11 @@ ui <- tagList(
       icon = bsicons::bs_icon("info-circle"),
       div(
         class = "container bigger-text",
-        includeMarkdown(here::here("Methodology.md"))
+        layout_columns(
+          card(
+            includeMarkdown(here::here("Methodology.md"))
+          )
+        )
       )
     ),
     
@@ -40,7 +41,8 @@ ui <- tagList(
       tags$a(
         "Developed by Epi-DS",
         href = "https://epicentre-msf.github.io/gallery/",
-        target = "_blank"
+        target = "_blank",
+        class = "text-muted"
       )
     ),
     # nav_item(

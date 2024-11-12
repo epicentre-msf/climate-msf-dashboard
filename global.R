@@ -7,7 +7,7 @@ library(sf)
 library(sfnetworks)
 library(highcharter)
 library(reactable)
-library(leaflet)
+library(flowmapblue)
 
 #source(here::here("R", "set_paths.R"))
 source(here::here("R", "utils_labels.R"))
@@ -23,11 +23,16 @@ app_name <- "msf-carbon-app"
 app_title <- "MSF Carbon Travel App"
 sp_path <- Sys.getenv("SHINYPROXY_PUBLIC_PATH")
 is_sp_env <- sp_path != ""
+# mapbox api token
+mbtkn <- Sys.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Import data -------------------------------------------------------------
 
 # Get all travel data
 df_travels <- read_rds(here::here(clean_path, "flights", "full_amex_wagram_cwt.rds"))
+# locations for flowmap
+locations <- read_rds(here::here(clean_path, "cities", "df_cities.rds")) |> 
+  transmute(id = city_code, name = city_name, lat, lon)
 
 # date range
 init_year <- sort(unique(df_travels$year))
