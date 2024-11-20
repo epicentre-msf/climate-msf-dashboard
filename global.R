@@ -35,7 +35,7 @@ mbtkn <- Sys.getenv('MAPBOX_ACCESS_TOKEN')
 df_travels <- read_rds(here::here(clean_path, "flights", "full_amex_wagram_cwt.rds"))
 # locations for flowmap
 locations <- read_rds(here::here(clean_path, "cities", "df_cities.rds")) |> 
-  transmute(id = city_code, name = city_name, lat, lon)
+  transmute(id = city_code, name = city_name, lat = city_lat, lon = city_lon)
 
 # date range
 init_year <- sort(unique(df_travels$year))
