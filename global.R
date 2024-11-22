@@ -33,9 +33,27 @@ mbtkn <- Sys.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Get all travel data
 df_travels <- read_rds(here::here(clean_path, "flights", "full_amex_wagram_cwt.rds"))
+
+# Check train for OCP
+
+df_travels %>% filter(org == "OCP",
+                      travel_type == "rail",
+                      emission == 0
+) %>% select(
+  ori_city_name,
+  dest_city_name,
+  distance_km,
+  emission
+)
+
 # locations for flowmap
-locations <- read_rds(here::here(clean_path, "cities", "df_cities.rds")) |> 
-  transmute(id = city_code, name = city_name, lat = city_lat, lon = city_lon)
+locations <- read_rds(here::here(clean_path,
+                                 "cities",
+                                 "df_cities.rds")) |>
+  transmute(id = city_code,
+            name = city_name,
+            lat = city_lat,
+            lon = city_lon)
 
 # date range
 init_year <- sort(unique(df_travels$year))

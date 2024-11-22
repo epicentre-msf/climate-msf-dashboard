@@ -475,8 +475,9 @@ mod_travel_analysis_server <- function(
 
     # Map  ===========================================
     df_flowmap <- reactive({
+
       travel_ready() |>
-        # filter(travel_type == "air") |>
+        filter(travel_type == "air") |>
         count(
           origin = ori_city_code,
           dest = dest_city_code,
@@ -485,6 +486,7 @@ mod_travel_analysis_server <- function(
     })
 
     output$flowmap <- flowmapblue::renderFlowmapblue({
+
       flowmapblue::flowmapblue(
         locations = locations,
         flows = df_flowmap(),
@@ -853,7 +855,7 @@ mod_travel_analysis_server <- function(
         paste0("travel_data_", dates, org, ".xlsx")
       },
       content = function(file) {
-        qxl::qxl(travel_ready() |> select(-traveler_name), file)
+        qxl::qxl(travel_ready() |> select( -traveler_name), file)
       }
     )
   })
