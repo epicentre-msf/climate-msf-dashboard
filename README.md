@@ -10,7 +10,7 @@ This project stems from the collaboration between the [Climate Smart MSF](https:
 
 The initial goal of the project was to help minimise MSF flight travel emissions by providing a tool that could find the best location to host the many meetings and trainings that the movement organises. After discussion with carbon analysts, it was quickly realised that a dashboard providing key analysis and visualisation of MSF travel data would be greatly beneficial for carbon analyst's work, but also to raise awareness across MSF.
 
-For any general enquiries regarding the project or **Climate Smart MSF** please contact [Maëlle CHARRIER](mailto:Maelle.CHARRIER@geneva.msf.org). For technical enquiries regarding the app, please contact [Hugo SOUBRIER](mailto:hugo.soubrier@epicentre.msf.org) or [Paul CAMPBELL](mailto:paul.campbell@epicentre.msf.org). The code for the app is available on the [Epicentre GitHub](https://github.com/epicentre-msf/carbon-travel-app) where you can also [report an issue](https://github.com/epicentre-msf/carbon-travel-app/issues).
+For any general enquiries regarding the project or **Climate Smart MSF** please contact [Maëlle CHARRIER](mailto:Maelle.CHARRIER@geneva.msf.org). For technical enquiries regarding the app, please contact [Hugo SOUBRIER](mailto:hugo.soubrier@epicentre.msf.org) or [Paul CAMPBELL](mailto:paul.campbell@epicentre.msf.org). The code for the app is available on the [Epicentre GitHub](https://github.com/epicentre-msf/climate-msf-dashboard) where you can also [report an issue](https://github.com/epicentre-msf/climate-msf-dashboard/issues).
 
 ## Data source
 
