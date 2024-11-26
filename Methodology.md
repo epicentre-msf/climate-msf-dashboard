@@ -10,7 +10,7 @@ This project stems from the collaboration between the [Climate Smart MSF](https:
 
 The initial goal of the project was to help minimise MSF flight travel emissions by providing a tool that could find the best location to host the many meetings and trainings that the movement organises. After discussion with carbon analysts, it was quickly realised that a dashboard providing key analysis and visualisation of MSF travel data would be greatly beneficial for carbon analyst's work, but also to raise awareness across MSF.
 
-For any general enquiries regarding the project or **Climate Smart MSF** please contact [Maëlle CHARRIER](mailto:Maelle.CHARRIER@geneva.msf.org). For technical enquiries regarding the app, please contact [Hugo SOUBRIER](mailto:hugo.soubrier@epicentre.msf.org) or [Paul CAMPBELL](mailto:paul.campbell@epicentre.msf.org). The code for the app is available on the [Epicentre GitHub](https://github.com/epicentre-msf/carbon-travel-app) where you can also [report an issue](https://github.com/epicentre-msf/carbon-travel-app/issues).
+For any general enquiries regarding the project or **Climate Smart MSF** please contact [Maëlle CHARRIER](mailto:Maelle.CHARRIER@geneva.msf.org). For technical enquiries regarding the app, please contact [Hugo SOUBRIER](mailto:hugo.soubrier@epicentre.msf.org) or [Paul CAMPBELL](mailto:paul.campbell@epicentre.msf.org). The code for the app is available on the [Epicentre GitHub](https://github.com/epicentre-msf/climate-msf-dashboard) where you can also [report an issue](https://github.com/epicentre-msf/climate-msf-dashboard/issues).
 
 ## Data source
 
@@ -25,3 +25,16 @@ Please be aware that **these data are not exhaustive and do not represent the en
 ## Emissions factors
 
 The emission factors used in the analysis are following the common MSF methodology designed by **Climate Smart MSF**. Compared with the emission factors DEFRA, MSF have chosen to use those of ADEME, according to our flight typology. While DEFRA insist on the difference of class (economy/business..), ADEME focus on the haul duration (short/middle/long). More informations on the methodology behind carbon emissions can be found on the [Climate Smart MSF website](https://msfintl.sharepoint.com/:u:/r/sites/ClimateSmartMSF/SitePages/Main-Page.aspx?csf=1&web=1&e=8t2nc5).
+
+<script>
+    // Select the specific div by its ID (or another selector)
+    let div = document.getElementById('about-card');
+
+    // Find all <a> elements inside that div
+    let links = div.querySelectorAll('a');
+
+    // Loop through each link and add the target="_blank" attribute
+    links.forEach(link => {
+        link.setAttribute('target', '_blank');
+    });
+</script>

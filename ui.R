@@ -29,6 +29,7 @@ ui <- tagList(
         class = "container bigger-text",
         layout_columns(
           card(
+            id = "about-card",
             includeMarkdown(here::here("Methodology.md"))
           )
         )
