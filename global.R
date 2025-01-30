@@ -34,17 +34,7 @@ mbtkn <- Sys.getenv('MAPBOX_ACCESS_TOKEN')
 # Get all travel data
 df_travels <- read_rds(here::here(clean_path, "flights", "full_amex_wagram_cwt.rds"))
 
-# Check train for OCP
-
-df_travels %>% filter(org == "OCP",
-                      travel_type == "rail",
-                      emission == 0
-) %>% select(
-  ori_city_name,
-  dest_city_name,
-  distance_km,
-  emission
-)
+df_travels |> filter(org == "OCBA") |> select(code, department) |> count(department)
 
 # locations for flowmap
 locations <- read_rds(here::here(clean_path,
