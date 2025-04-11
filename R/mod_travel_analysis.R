@@ -42,6 +42,20 @@ mod_travel_analysis_ui <- function(id) {
             multiple = TRUE,
             options = list(placeholder = "All", plugins = "remove_button")
           ),
+          shiny::selectizeInput(
+            inputId = ns("ori_continent"),
+            label = "Origin Continent",
+            choices = c("Africa", "Americas", "Asia", "Europe", "Oceania"),
+            multiple = TRUE,
+            options = list(placeholder = "All", plugins = "remove_button")
+          ),
+          shiny::selectizeInput(
+            inputId = ns("dest_continent"),
+            label = "Destination Continent",
+            choices = c("Africa", "Americas", "Asia", "Europe", "Oceania"),
+            multiple = TRUE,
+            options = list(placeholder = "All", plugins = "remove_button")
+          ),
           bslib::input_task_button(
             ns("go"),
             "Filter data",
@@ -267,9 +281,9 @@ mod_travel_analysis_ui <- function(id) {
 }
 
 mod_travel_analysis_server <- function(
-    id,
-    df_travels,
-    is_mobile
+  id,
+  df_travels,
+  is_mobile
 ) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -288,6 +302,14 @@ mod_travel_analysis_server <- function(
         df_out <- df_out |> filter(travel_type %in% input$select_travel_type)
       }
 
+      if (length(input$ori_continent)) {
+        df_out <- df_out |> filter(ori_continent %in% input$ori_continent)
+      }
+
+      if (length(input$dest_continent)) {
+        df_out <- df_out |> filter(dest_continent %in% input$dest_continent)
+      }
+
       df_out
     })
 
@@ -301,7 +323,8 @@ mod_travel_analysis_server <- function(
         filter(invoice_date >= date[1], invoice_date <= date[2])
 
       return(df)
-    }) |> bindEvent(input$go, ignoreNULL = FALSE)
+    }) |>
+      bindEvent(input$go, ignoreNULL = FALSE)
 
     # Summary travel_ready() for value boxes
     travel_summary <- reactive({
@@ -314,8 +337,7 @@ mod_travel_analysis_server <- function(
 
       main_segment <- travel_ready() |>
 
-        filter(!is.na(ori_city_code),
-               !is.na(dest_city_code)) |>
+        filter(!is.na(ori_city_code), !is.na(dest_city_code)) |>
 
         count(ori_city_name, dest_city_name) |>
         mutate(segment = paste(ori_city_name, dest_city_name, sep = "-")) |>
@@ -324,12 +346,12 @@ mod_travel_analysis_server <- function(
       dat_summ <- travel_ready() |>
         summarise(
           n_travel = frmt_num(n()),
-          n_flight = paste0(frmt_num(sum(travel_type == "air")), " (", round(digits = 1, sum(travel_type == "air")/n() *100 ), "%)"),
+          n_flight = paste0(frmt_num(sum(travel_type == "air")), " (", round(digits = 1, sum(travel_type == "air") / n() * 100), "%)"),
           n_segment = nrow(main_segment),
           main_seg = main_segment |> filter(row_number() == 1) |> pull(segment),
           main_seg_n = main_segment |> filter(row_number() == 1) |> pull(n),
           tot_distance_miles = frmt_num(sum(distance_miles, na.rm = TRUE)),
-          tot_distance_km = round(digits = 2, sum(distance_km, na.rm = TRUE) ),
+          tot_distance_km = round(digits = 2, sum(distance_km, na.rm = TRUE)),
           tot_distance_km_fmt = frmt_num(tot_distance_km),
           tot_emissions = round(digits = 2, sum(emission, na.rm = TRUE)),
           tot_emissions_fmt = frmt_num(tot_emissions),
@@ -338,7 +360,6 @@ mod_travel_analysis_server <- function(
 
       return(dat_summ)
     })
-
 
     # VALUE BOXES ============================
 
@@ -358,7 +379,6 @@ mod_travel_analysis_server <- function(
     })
 
     output$segment_info <- renderUI({
-
       req(travel_summary())
       tags$small(glue::glue("{travel_summary()$main_seg} is most travelled"))
     })
@@ -369,7 +389,6 @@ mod_travel_analysis_server <- function(
     })
 
     output$dist_info <- renderUI({
-
       req(travel_summary())
       tags$small(glue::glue("{fmt_n(round(digits = 2, travel_summary()$tot_distance_km/40000))} times the Earth's circumference !"))
     })
@@ -387,7 +406,6 @@ mod_travel_analysis_server <- function(
     # Ratio table  ===========================================
 
     output$ratio_tab <- renderReactable({
-
       df <- travel_ready() |>
         filter(travel_type == input$select_travel_type_ratio)
 
@@ -408,9 +426,9 @@ mod_travel_analysis_server <- function(
           em_spent = round(emissions_kg / spent, digits = 2),
           em_flights = round(emissions_kg / flights, digits = 2),
           em_passengers = round(emissions_kg / passengers, digits = 2)
-        )  |>
+        ) |>
         select(year, emissions, contains("em_"))
-      dat_tot <-  df |>
+      dat_tot <- df |>
         summarise(
           emissions = round(sum(emission, na.rm = TRUE), digits = 0),
           emissions_kg = emissions * 1000,
@@ -434,33 +452,20 @@ mod_travel_analysis_server <- function(
         arrange(dat, desc(year)),
         highlight = TRUE,
         compact = TRUE,
-        defaultColDef = colDef(align = "center",
-                               format = colFormat(separators = TRUE,
-                                                  locales = "fr-Fr")),
+        defaultColDef = colDef(align = "center", format = colFormat(separators = TRUE, locales = "fr-Fr")),
         columns = list(
-          year = colDef("Year",
-                        align = "left",
-          ),
-          emissions = colDef("Emissions (tC02e)",
-                             align = "left",
-          ),
-          em_km = colDef("kg CO2e / km",
-                         align = "left",
-          ),
+          year = colDef("Year", align = "left", ),
+          emissions = colDef("Emissions (tC02e)", align = "left", ),
+          em_km = colDef("kg CO2e / km", align = "left", ),
           # em_miles = colDef("per miles", align = "left"),
-          em_spent = colDef("kg CO2e / €",
-                            align = "left",
-          ),
-          em_flights = colDef("kg CO2e / trips",
-                              align = "left",
-          ),
-          em_passengers = colDef("kg CO2e / traveller",
-                                 align = "left",
-          )
+          em_spent = colDef("kg CO2e / €", align = "left", ),
+          em_flights = colDef("kg CO2e / trips", align = "left", ),
+          em_passengers = colDef("kg CO2e / traveller", align = "left", )
         ),
-        style = list(width = "100%",               # Ensure the table takes up the full width of its container
-                     overflowX = "auto",           # Enable horizontal scrolling when necessary
-                     display = "block"
+        style = list(
+          width = "100%", # Ensure the table takes up the full width of its container
+          overflowX = "auto", # Enable horizontal scrolling when necessary
+          display = "block"
         ),
 
         rowStyle = function(i) {
@@ -475,7 +480,6 @@ mod_travel_analysis_server <- function(
 
     # Map  ===========================================
     df_flowmap <- reactive({
-
       travel_ready() |>
         filter(travel_type == "air") |>
         count(
@@ -486,7 +490,6 @@ mod_travel_analysis_server <- function(
     })
 
     output$flowmap <- flowmapblue::renderFlowmapblue({
-
       flowmapblue::flowmapblue(
         locations = locations,
         flows = df_flowmap(),
@@ -608,7 +611,6 @@ mod_travel_analysis_server <- function(
     })
 
     output$time_serie <- renderHighchart({
-
       validate(need(nrow(hc_df()) > 0, "No data available"))
 
       # Set filters
@@ -662,7 +664,6 @@ mod_travel_analysis_server <- function(
         )
     })
 
-
     # Distributions =======================================
 
     # observe Event for distribution year input
@@ -678,7 +679,6 @@ mod_travel_analysis_server <- function(
 
     # Histograms
     output$dist_hist <- renderHighchart({
-
       validate(need(nrow(travel_ready()) > 0, "No data available"))
 
       dist_var_sym <- sym(input$dist_var)
@@ -710,7 +710,6 @@ mod_travel_analysis_server <- function(
 
     # Boxplot
     output$dist_boxplot <- renderHighchart({
-
       validate(need(nrow(travel_ready()) > 0, "No data available"))
 
       dist_var_sym <- sym(input$display)
@@ -750,7 +749,6 @@ mod_travel_analysis_server <- function(
 
     # Global parts ========================================
     output$barplot <- renderHighchart({
-
       validate(need(nrow(travel_ready()) > 0, "No data available"))
 
       bar_var_sym <- sym(input$bar_var)
@@ -855,7 +853,7 @@ mod_travel_analysis_server <- function(
         paste0("travel_data_", dates, org, ".xlsx")
       },
       content = function(file) {
-        qxl::qxl(travel_ready() |> select( -traveler_name), file)
+        qxl::qxl(travel_ready() |> select(-traveler_name), file)
       }
     )
   })
