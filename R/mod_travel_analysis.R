@@ -195,7 +195,10 @@ mod_travel_analysis_ui <- function(id) {
                 shiny::selectizeInput(
                   inputId = ns("group"),
                   label = "Group",
-                  choices = c(purrr::set_names("no grouping", NULL), group_vars[group_vars != "mission_country_name"]),
+                  choices = c(
+                    purrr::set_names("no grouping", NULL),
+                    group_vars[group_vars != "mission_country_name"]
+                  ),
                   multiple = FALSE,
                   width = "95%"
                 ),
@@ -346,7 +349,12 @@ mod_travel_analysis_server <- function(
       dat_summ <- travel_ready() |>
         summarise(
           n_travel = frmt_num(n()),
-          n_flight = paste0(frmt_num(sum(travel_type == "air")), " (", round(digits = 1, sum(travel_type == "air") / n() * 100), "%)"),
+          n_flight = paste0(
+            frmt_num(sum(travel_type == "air")),
+            " (",
+            round(digits = 1, sum(travel_type == "air") / n() * 100),
+            "%)"
+          ),
           n_segment = nrow(main_segment),
           main_seg = main_segment |> filter(row_number() == 1) |> pull(segment),
           main_seg_n = main_segment |> filter(row_number() == 1) |> pull(n),
@@ -355,7 +363,10 @@ mod_travel_analysis_server <- function(
           tot_distance_km_fmt = frmt_num(tot_distance_km),
           tot_emissions = round(digits = 2, sum(emission, na.rm = TRUE)),
           tot_emissions_fmt = frmt_num(tot_emissions),
-          emission_km = round(digits = 10, sum(emission, na.rm = TRUE) / sum(distance_km, na.rm = TRUE))
+          emission_km = round(
+            digits = 10,
+            sum(emission, na.rm = TRUE) / sum(distance_km, na.rm = TRUE)
+          )
         )
 
       return(dat_summ)
@@ -390,7 +401,9 @@ mod_travel_analysis_server <- function(
 
     output$dist_info <- renderUI({
       req(travel_summary())
-      tags$small(glue::glue("{fmt_n(round(digits = 2, travel_summary()$tot_distance_km/40000))} times the Earth's circumference !"))
+      tags$small(glue::glue(
+        "{fmt_n(round(digits = 2, travel_summary()$tot_distance_km/40000))} times the Earth's circumference !"
+      ))
     })
 
     output$emission <- renderText({
@@ -400,7 +413,9 @@ mod_travel_analysis_server <- function(
 
     output$emission_info <- renderUI({
       req(travel_summary())
-      tags$small(glue::glue("{fmt_n(round(digits = 2, travel_summary()$tot_emissions * 0.013 ) )} tanker trucks worth of gasoline !"))
+      tags$small(glue::glue(
+        "{fmt_n(round(digits = 2, travel_summary()$tot_emissions * 0.013 ) )} tanker trucks worth of gasoline !"
+      ))
     })
 
     # Ratio table  ===========================================
@@ -452,7 +467,10 @@ mod_travel_analysis_server <- function(
         arrange(dat, desc(year)),
         highlight = TRUE,
         compact = TRUE,
-        defaultColDef = colDef(align = "center", format = colFormat(separators = TRUE, locales = "fr-Fr")),
+        defaultColDef = colDef(
+          align = "center",
+          format = colFormat(separators = TRUE, locales = "fr-Fr")
+        ),
         columns = list(
           year = colDef("Year", align = "left", ),
           emissions = colDef("Emissions (tC02e)", align = "left", ),
@@ -603,6 +621,7 @@ mod_travel_analysis_server <- function(
         ) |>
         arrange(date_group) |>
         mutate(
+          .by = !!group_sym,
           lab = fmt_n(!!y_var),
           n_c = cumsum(!!y_var)
         )
@@ -702,7 +721,11 @@ mod_travel_analysis_server <- function(
               color = "red",
               zIndex = 1,
               value = median(hc_var),
-              label = list(text = paste("Median", median(hc_var), "days"), verticalAlign = "bottom", textAlign = "left")
+              label = list(
+                text = paste("Median", median(hc_var), "days"),
+                verticalAlign = "bottom",
+                textAlign = "left"
+              )
             )
           )
         )
@@ -768,7 +791,10 @@ mod_travel_analysis_server <- function(
         ) |>
         mutate(
           label = fmt_n(!!bar_var_sym),
-          percent = scales::percent(!!bar_var_sym / sum(!!bar_var_sym, na.rm = TRUE), accuracy = .1)
+          percent = scales::percent(
+            !!bar_var_sym / sum(!!bar_var_sym, na.rm = TRUE),
+            accuracy = .1
+          )
         ) |>
         rename("group_var" = input$bar_group) |>
         arrange(desc(!!bar_var_sym))
@@ -784,9 +810,13 @@ mod_travel_analysis_server <- function(
         )
       ) |>
         hc_chart(
-          scrollablePlotArea = list(minHeight = 20 * n_distinct(hc_df$group_var))
+          scrollablePlotArea = list(
+            minHeight = 20 * n_distinct(hc_df$group_var)
+          )
         ) |>
-        hc_yAxis(title = list(text = names(display_var[display_var == input$bar_var]))) |>
+        hc_yAxis(
+          title = list(text = names(display_var[display_var == input$bar_var]))
+        ) |>
         hc_xAxis(
           title = list(text = names(bar_group[bar_group == input$bar_group])),
           labels = list(step = 1),
@@ -818,7 +848,9 @@ mod_travel_analysis_server <- function(
           main_org = org[max(n())]
         ) |>
         mutate(
-          emission_pct = scales::percent(emission / sum(emission, na.rm = TRUE)),
+          emission_pct = scales::percent(
+            emission / sum(emission, na.rm = TRUE)
+          ),
           emission = fmt_n(emission),
           emission = paste0(emission, " (", emission_pct, ")")
         ) |>
@@ -831,7 +863,10 @@ mod_travel_analysis_server <- function(
         highlight = TRUE,
         searchable = TRUE,
         compact = TRUE,
-        defaultColDef = colDef(align = "center", format = colFormat(separators = TRUE)),
+        defaultColDef = colDef(
+          align = "center",
+          format = colFormat(separators = TRUE)
+        ),
         columns = list(
           dest_city_name = colDef("Destination", align = "left"),
           n_flights = colDef("N Flights"),
