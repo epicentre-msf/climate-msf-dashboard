@@ -36,6 +36,13 @@ mod_travel_analysis_ui <- function(id) {
             options = list(placeholder = "All", plugins = "remove_button")
           ),
           shiny::selectizeInput(
+            inputId = ns("select_data_source"),
+            label = "Data source",
+            choices = unique(df_travels$data_source),
+            multiple = TRUE,
+            options = list(placeholder = "All", plugins = "remove_button")
+          ),
+          shiny::selectizeInput(
             inputId = ns("select_type"),
             label = "Contract type",
             choices = unique(df_travels$hq_flying_mission),
@@ -296,6 +303,9 @@ mod_travel_analysis_server <- function(
       df_out <- df_travels
       if (length(input$select_org)) {
         df_out <- df_out |> filter(org %in% input$select_org)
+      }
+      if (length(input$select_data_source)) {
+        df_out <- df_out |> filter(data_source %in% input$select_data_source)
       }
       if (length(input$select_type)) {
         df_out <- df_out |> filter(hq_flying_mission %in% input$select_type)
